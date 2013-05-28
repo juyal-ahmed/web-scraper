@@ -10,3 +10,5 @@ web-scraper
     3. ASP Call
     4. Get Contents by Markup Tag Name
     5. Get value from a field
+
+Conclusion: Some example files are coming very soon for php and asp web scraping.
