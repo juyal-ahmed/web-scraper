@@ -7,6 +7,12 @@
 *  
 */
 class Scraper {
+        
+        /*
+        * @ param boolean if you need to use cookie for language support or authentication support
+        */
+        var $useCookie = false;
+        
         function __construct(){
         
         }
