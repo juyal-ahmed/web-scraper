@@ -13,6 +13,11 @@ class Scraper {
         */
         var $useCookie = false;
         
+        /*
+        * @ param string directory/path of cache contents to be stored
+        */
+        var $cacheLocation = "./cache/";           
+        
         function __construct(){
         
         }
@@ -198,6 +203,97 @@ class Scraper {
                 $result = "";
             }
             return $result;
+        }
+        
+        
+        /*
+        * 
+        * Creating an array of label and value pair from a  table which has only 2 td
+        * @ param string $content full html content which you want to parse
+        * @ param boolean $label_strip is the label allowed to be striped for html tags
+        * @ param boolean $value_strip is the value allowed to be striped for html tags
+        * $ return an array of label value pair
+        * 
+        */
+        function table2td2array($content, $label_strip=true, $value_strip=false){
+            $rowArr = explode('<tr>', $content);
+            array_shift($rowArr);
+            $tmp_ret_arr = array();
+            
+            
+            if (!empty($rowArr) && is_array($rowArr)) {     
+                foreach ($rowArr as $key => $value) {  
+                    $tmpRowArr = explode('<td', $value);
+                    array_shift($tmpRowArr);           
+                    $tmpLabel = strip_tags($this->getValueByTagName($tmpRowArr[0], '>', '</td>'));                  
+                    if($label_strip){
+                        $tmpLabel = strip_tags($tmpLabel);     
+                    }
+                    $tmpValue = strip_tags($this->getValueByTagName($tmpRowArr[1], '>', '</td>'));                  
+                    if($value_strip){
+                        $tmpValue = strip_tags($tmpValue);                                            
+                    }
+                   
+                    $tmpLabel = trim($tmpLabel);           
+                    $tmpValue = trim($tmpValue);
+                    
+                    if(!empty($tmpLabel)){
+                        $tmp_ret_arr[$tmpLabel] = $tmpValue;
+                    }
+                    
+                    
+                }        
+            }
+            return $tmp_ret_arr;
+        }
+        
+        /*
+        * 
+        * Checking if cache file exist
+        * @ param string $name cache file name
+        * 
+        */
+        public function checkCacheAvailable($name){
+            if($this->enableCache){
+                $cachefile = $this->cacheLocation . $name;
+                $cachetime = 5 * 60; //5 min
+                if (file_exists($cachefile) && (time() - $cachetime < filemtime($cachefile)))  {
+                    return true;
+                } else {
+                    return false;
+                }    
+            } else {
+                return false;
+            }
+        }
+        
+        /*
+        * 
+        * Reading cache file
+        * @ param string $name cache file name
+        * 
+        */
+        public function readCache($name){
+            $cachefile = $this->cacheLocation . $name;
+            $output = file_get_contents($cachefile, FILE_USE_INCLUDE_PATH);
+            return $output;
+        }
+        
+        
+        /*
+        * 
+        * Writing cache file with contents
+        * @ param string $name cache file name
+        * @ param string $content cache content to write on cache file
+        * 
+        */
+        public function writeCache($name, $content){
+            if($this->enableCache){
+                $cachefile = $this->cacheLocation . $name;
+                $fp = fopen($cachefile, 'w'); 
+                fwrite($fp, $content); 
+                fclose($fp);     
+            }        
         }
 }           
     
