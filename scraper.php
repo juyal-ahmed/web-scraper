@@ -168,6 +168,10 @@ class Scraper {
         * @ return middle html content from given start tag and end tag of $data
         * */
         function getValueByTagName( $data, $s_tag, $e_tag) {
+            $pos = strpos($data, $s_tag);
+            if ($pos === false) {
+                return '';
+            } else {  
                 $s = strpos( $data,$s_tag) + strlen( $s_tag);
                 $e = strlen( $data);
                 $data= substr($data, $s, $e);
@@ -176,6 +180,7 @@ class Scraper {
                 $data= substr($data, $s, $e);
                 $data= substr($data, $s, $e);
                 return  $data;
+            }
         }    
 
         /*
