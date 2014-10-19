@@ -10,19 +10,19 @@
 
 ### Getting a full webpage content:
 <pre>
-<?php
+&lt;?php
 include_once( './scraper.php' );
 $scraper = new Scraper();
 $pageUrl = 'http://maps.google.com';
 $pageHtmlContent = $scraper->getPage($pageUrl);
-?>
+?&gt;
 </pre>
 
 ### Parsing a page html content:
 <pre>
-<?php
-$subHtmlContent =  $scraper->getValueByTagName($pageHtmlContent, '<div class="itemlist">', '</div>');
-?>
+&lt;?php
+$subHtmlContent =  $scraper->getValueByTagName($pageHtmlContent, '&lt;div class="itemlist"&gt;', '&lt;/div&gt;');
+?&gt;
 </pre>
 
 Conclusion: Some example files are coming very soon for PHP and ASP web scraping. However, for some quick other examples you can follow here http://codeatomic.com/page-scraping-on-php/
