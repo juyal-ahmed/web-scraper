@@ -2,17 +2,12 @@
 
 1. A PHP web scraper class that utilizes the cURL library to scrape web page content. Scrape web pages using GET or POST methods. Also scrape web page content from asp.net based websites using form POST methods.
 2. Support for:
-<<<<<<< HEAD
     1. Get Mathod
-=======
-    1. GET Method
->>>>>>> 0701b73629add9efa5624e27226e7a612d7187e2
     2. POST Method
     3. ASP Calls
     4. Retrieve Page Contents by Markup Tag Names
     5. Retrieve Values from Form Fields
 
-<<<<<<< HEAD
 ### Getting a full webpage content:
 <pre>
 &lt;?php
@@ -33,7 +28,3 @@ $subHtmlContent =  $scraper->getValueByTagName($pageHtmlContent, '&lt;div class=
 Conclusion: Some example files are coming very soon for PHP and ASP web scraping. However, for some quick other examples you can follow here http://codeatomic.com/page-scraping-on-php/
 
 Thanks
-=======
-Conclusion: Some example files are coming very soon for PHP and ASP web scraping.
-However, for some quick other examples you can follow here http://codeatomic.com/page-scraping-on-php/
->>>>>>> 0701b73629add9efa5624e27226e7a612d7187e2
