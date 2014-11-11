@@ -34,6 +34,4 @@ $subHtmlContent =  $scraper->getValueByTagName($pageHtmlContent, '&lt;div class=
 6. Then loop it whole and get the content by getValueByTagName again to make the filnal array of grid data.
 7. Thats' all
 
-Conclusion: Some example files are coming very soon for PHP and ASP web scraping. However, for some quick other examples you can follow here http://codeatomic.com/page-scraping-on-php/
-
 Thanks
