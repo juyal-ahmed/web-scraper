@@ -25,6 +25,15 @@ $subHtmlContent =  $scraper->getValueByTagName($pageHtmlContent, '&lt;div class=
 ?&gt;
 </pre>
 
+### How It Works:
+1. Include The Class scraper.php in your Working page header.
+2. Set some default settings.
+3. Get the page content by it's existing methods.
+4. Split your content by getValueByTagName methods if single content you are searching for.
+5. If grid data needed, split the content with a needle Ex: explode()
+6. Then loop it whole and get the content by getValueByTagName again to make the filnal array of grid data.
+7. Thats' all
+
 Conclusion: Some example files are coming very soon for PHP and ASP web scraping. However, for some quick other examples you can follow here http://codeatomic.com/page-scraping-on-php/
 
 Thanks
