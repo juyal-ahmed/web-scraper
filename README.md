@@ -14,7 +14,17 @@
 include_once( './scraper.php' );
 $scraper = new Scraper();
 $pageUrl = 'http://maps.google.com';
-$pageHtmlContent = $scraper->getPage($pageUrl);
+$pageHtmlContent = $scraper->curl($pageUrl);
+?&gt;
+</pre>
+
+### Getting a full webpage content with Using Proxy IP:
+<pre>
+&lt;?php
+include_once( './scraper.php' );
+$scraper = new Scraper();
+$pageUrl = 'http://maps.google.com';
+$pageHtmlContent = $scraper->curl($pageUrl, "93.118.xx.141:8800", "6USERR:8PASS1");
 ?&gt;
 </pre>
 
