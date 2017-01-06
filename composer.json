@@ -1,8 +1,8 @@
 {
     "name": "tojibon/web-scraper",
     "description": "A web scraper php class using PHP cURL to scrap web page. By which you can scrap web page by cURL get, post methods also by which you can scrap web page content from a asp.net based websites with form post.",
-    "version": "1.0.0-dev",
-    "license": "MIT",
+    "minimum-stability": "dev",
+    "license": "GPL-3.0",
     "authors": [
         {
             "name": "Juyal Ahmed",
@@ -15,6 +15,6 @@
         "php" : "^5.5 || ^7.0"
     },
     "autoload": {
-        "classmap": ["src/"]
+        "files": ["src/Scraper.php"]
     }
 }
