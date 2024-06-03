@@ -1,299 +1,238 @@
 <?php
-/*
-*
-* File: PHP Web Scraping Class 
-* By: Jewel Ahmed<tojibon@gmail.com>
-* Date: 28-05-2013
-*  
-*/
+/**
+ * @author      Juyal Ahmed <tojibon@gmail.com>
+ * @copyright   Copyright (c) Juyal Ahmed
+ * @license     http://mit-license.org/
+ *
+ * @link        https://github.com/tojibon/web-scraper
+ */
+
+namespace PhpFarmer\WebScraper;
+
+use PhpFarmer\WebScraper\Traits\AspFormPostTrait;
+
 class Scraper {
+    use AspFormPostTrait;
+
+    /**
+     * @var string Base URL of the page to be scraped
+     */
+    public string $url;
+
+    /**
+     * @var bool Set to true to enable caching feature
+     */
+    public bool $enableCache;
+
+    /*
+     * @var string Directory/path of cached contents to be stored
+     */
+    public string $cacheLocation;
+
+    /**
+     * @var int Cache Time To Live in seconds
+     */
+    public int $cacheTTL;
+
+    /*
+     * @var bool Set to true if you need to use cookies for language or authentication support
+     */
+    public bool $enableCookie;
+
+    /**
+     * @var string File/path of the cookie file to store cookies
+     */
+    public string $cookieFile;
+
+    /**
+     * Constructor for Scraper class.
+     *
+     * @param string $url The base URL of the page to be scraped.
+     * @param bool $enableCache Set to true to enable caching feature.
+     * @param string $cacheLocation Directory/path of cached contents to be stored.
+     * @param int $cacheTTL Cache Time To Live in seconds.
+     * @param bool $enableCookie Set to true if you need to use cookies for language or authentication support.
+     * @param string $cookieFile File/path of the cookie file to store cookies.
+     */
+    public function __construct(
+        string $url,
+        bool $enableCache = false,
+        string $cacheLocation = "./cache/",
+        int $cacheTTL = 300,
+        bool $enableCookie = false,
+        string $cookieFile = './cookies.txt'
+    ) {
+        $this->url = $url;
+        $this->enableCache = $enableCache;
+        $this->cacheLocation = $cacheLocation;
+        $this->cacheTTL = $cacheTTL;
+        $this->enableCookie = $enableCookie;
+        $this->cookieFile = $cookieFile;
+    }
         
-        /*
-        * @ param boolean if you need to use cookie for language support or authentication support
-        */
-        var $useCookie = false;
-        
-        /*
-        * @ param string directory/path of cache contents to be stored
-        */
-        var $cacheLocation = "./cache/";           
-        
-        function __construct(){
-        
+    /*
+    *
+    * @param string $url as 'http://phpfarmer.com'; Page URL which you want to fetch
+    * @param array  $data
+    * @param string $proxy [optional] as '[proxy IP]:[port]'; Proxy address and port number which you want to use
+    * @param string $userpass [optional] as '[username]:[password]'; Proxy authentication username and password
+    * @return a url page HTML content
+     *
+    * */
+    public function getPageSubmitContent(string $url, array $data = [], string $proxy = '', string $userNameAndPassword = '', array $header = []): string
+    {
+        // Initialize cURL session
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+        if(!empty($header)){
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $header );
+            curl_setopt($ch,CURLOPT_ENCODING , "gzip");
         }
-        
-        /*
-        * 
-        * @ param string $url as 'http://maps.google.com'; Page url location which you want to fetch
-        * @ param array  $data      
-        * @ return a url page html content
-        * */
-        function aspFormPost($url, $data = array()){
-            $regexViewstate = '/__VIEWSTATE\" value=\"(.*)\"/i';
-            $regexEventVal  = '/__EVENTVALIDATION\" value=\"(.*)\"/i';
-            
-            $regs = array();
-            $this->ckfile = tempnam ("/tmp", "CURLCOOKIE");       
-            $ch = curl_init();      
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-            $gcontent=curl_exec($ch);
-            $viewstate = $this->regexExtract($gcontent,$regexViewstate,$regs,1);
-            $eventval = $this->regexExtract($gcontent, $regexEventVal,$regs,1);
 
-            
-            $data['__VIEWSTATE']=$viewstate;
-            $data['__EVENTVALIDATION']=$eventval;
-                                                                      
-            curl_setOpt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_URL, $url);   
-            curl_setopt($ch, CURLOPT_COOKIEJAR, $this->ckfile);
+        // Set the CURLOPT_COOKIEJAR option to store cookies in a file
+        if($this->enableCookie)
+            curl_setopt ($ch, CURLOPT_COOKIEJAR, $this->cookieFile);
 
-            $content = curl_exec($ch); 
-            
-            if($content === false) {
-                $content = curl_error($ch);
-            }   
-            curl_close($ch);
-            return $content;
-        }
-        
-        /*
-        * 
-        * @ param string $url as 'http://maps.google.com'; Page url location which you want to fetch
-        * @ param array  $data
-        * @ param string $proxy [optional] as '[proxy IP]:[port]'; Proxy address and port number 
-        * which you want to use
-        * @ param string $userpass [optional] as '[username]:[password]'; Proxy authentication 
-        * username and password
-        * @ return a url page html content
-        * @ access private
-        * */
-        function getPagePost($url, $data = array(), $proxy='', $userpass='', $header = array()) {
-            
-            $ch = curl_init();
-            
-            if(!empty($header)){
-                curl_setopt($ch, CURLOPT_HTTPHEADER, $header );
-                curl_setopt($ch,CURLOPT_ENCODING , "gzip");
-            }
-                
-            
-            curl_setopt($ch, CURLOPT_URL, $url);
-            if($this->useCookie)
-                curl_setopt ($ch, CURLOPT_COOKIEJAR, $this->ckfile);         
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
 
-            if(!empty($proxy))
+        if(!empty($proxy))
             curl_setopt($ch, CURLOPT_PROXY, $proxy);
-         
-            if(!empty($userpass))
-            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $userpass);
-         
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            
-            $result = curl_exec($ch);
-            
-            if($result === false) {
-                $result = curl_error($ch);
-            }   
-            
-            curl_close($ch);
-            return $result;
-        }
-        
-        /*
-        * 
-        * @ param string $url as 'http://maps.google.com'; Page url location which you want to fetch
-        * @ param string $proxy [optional] as '[proxy IP]:[port]'; Proxy address and port number 
-        * which you want to use
-        * @ param string $userpass [optional] as '[username]:[password]'; Proxy authentication 
-        * username and password
-        * @ return a url page html content
-        * 
-        * */
-        function curl($url, $proxy='', $userpass='') {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            
-            if($this->useCookie)
-                curl_setopt ($ch, CURLOPT_COOKIEFILE, $this->ckfile); 
-                
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-         
-            if(!empty($proxy))
-                curl_setopt($ch, CURLOPT_PROXY, $proxy);
-         
-            if(!empty($userpass))
-                curl_setopt($ch, CURLOPT_PROXYUSERPWD, $userpass);
-         
-            $result = curl_exec($ch);
-            curl_close($ch);
-            return $result;
-        }
-        
-        /*
-        * 
-        * @ param string $url as 'http://maps.google.com'; Page url location which you want to fetch
-        * @ param string $proxy [optional] as '[proxy IP]:[port]'; Proxy address and port number 
-        * which you want to use
-        * @ param string $userpass [optional] as '[username]:[password]'; Proxy authentication 
-        * username and password
-        * @ return a url page html content
-        * 
-        * */ 
-        function curlWithCookie($url, $proxy='', $userpass='') {
-            
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt ($ch, CURLOPT_COOKIEJAR, $this->ckfile); 
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-         
-            if(!empty($proxy))
-            curl_setopt($ch, CURLOPT_PROXY, $proxy);
-         
-            if(!empty($userpass))
-            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $userpass);
-         
-            $result = curl_exec($ch);
-            curl_close($ch);
-            return $result;
-        }
-         
-        /*
-        * 
-        * @ param string $data Full html content which you want to parse
-        * @ param string $s_tag Start tag of html content
-        * @ param string $e_tag End tag of html content
-        * @ return middle html content from given start tag and end tag of $data
-        * */
-        function getValueByTagName( $data, $s_tag, $e_tag) {
-            $pos = strpos($data, $s_tag);
-            if ($pos === false) {
-                return '';
-            } else {  
-                $s = strpos( $data,$s_tag) + strlen( $s_tag);
-                $e = strlen( $data);
-                $data= substr($data, $s, $e);
-                $s = 0;
-                $e = strpos( $data,$e_tag);
-                $data= substr($data, $s, $e);
-                $data= substr($data, $s, $e);
-                return  $data;
-            }
-        }    
 
-        /*
-        * 
-        * @ param string $text Full html content which you want to parse
-        * @ param string $regex rgx
-        * @ param string $regs will be set to an array of all group values (assuming a match)
-        * @ param string $nthValue nth number value example where n= 1,2,3,4
-        * @ return a value of matched string
-        * */
-        function regexExtract($text, $regex, $regs, $nthValue) {
-            if (preg_match($regex, $text, $regs)) {
-                $result = $regs[$nthValue];
-            } else {
-                $result = "";
-            }
-            return $result;
+        if(!empty($userNameAndPassword))
+            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $userNameAndPassword);
+
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+        $result = curl_exec($ch);
+        if($result === false) {
+            $result = curl_error($ch);
         }
-        
-        
-        /*
-        * 
-        * Creating an array of label and value pair from a  table which has only 2 td
-        * @ param string $content full html content which you want to parse
-        * @ param boolean $label_strip is the label allowed to be striped for html tags
-        * @ param boolean $value_strip is the value allowed to be striped for html tags
-        * $ return an array of label value pair
-        * 
-        */
-        function table2td2array($content, $label_strip=true, $value_strip=false){
-            $rowArr = explode('<tr>', $content);
-            array_shift($rowArr);
-            $tmp_ret_arr = array();
-            
-            
-            if (!empty($rowArr) && is_array($rowArr)) {     
-                foreach ($rowArr as $key => $value) {  
-                    $tmpRowArr = explode('<td', $value);
-                    array_shift($tmpRowArr);           
-                    $tmpLabel = strip_tags($this->getValueByTagName($tmpRowArr[0], '>', '</td>'));                  
-                    if($label_strip){
-                        $tmpLabel = strip_tags($tmpLabel);     
-                    }
-                    $tmpValue = strip_tags($this->getValueByTagName($tmpRowArr[1], '>', '</td>'));                  
-                    if($value_strip){
-                        $tmpValue = strip_tags($tmpValue);                                            
-                    }
-                   
-                    $tmpLabel = trim($tmpLabel);           
-                    $tmpValue = trim($tmpValue);
-                    
-                    if(!empty($tmpLabel)){
-                        $tmp_ret_arr[$tmpLabel] = $tmpValue;
-                    }
-                    
-                    
-                }        
-            }
-            return $tmp_ret_arr;
+
+        curl_close($ch);
+        return $result;
+    }
+
+    /*
+    *
+    * @param string $url as 'http://phpfarmer.com'; Page url location which you want to fetch
+    * @param string $proxy [optional] as '[proxy IP]:[port]'; Proxy address and port number which you want to use
+    * @param string $userpass [optional] as '[username]:[password]'; Proxy authentication username and password
+    * @return a url page HTML content
+     *
+    * */
+    public function getPageContent(string $url, string $proxy = '', string $userNameAndPassword = ''): string
+    {
+        // Initialize cURL session
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+        // Set the CURLOPT_COOKIEFILE option to load cookies from the file
+        if($this->enableCookie)
+            curl_setopt ($ch, CURLOPT_COOKIEFILE, $this->cookieFile);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        if(!empty($proxy))
+            curl_setopt($ch, CURLOPT_PROXY, $proxy);
+
+        if(!empty($userNameAndPassword))
+            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $userNameAndPassword);
+
+        $result = curl_exec($ch);
+        if($result === false) {
+            $result = curl_error($ch);
         }
-        
-        /*
-        * 
-        * Checking if cache file exist
-        * @ param string $name cache file name
-        * 
-        */
-        public function checkCacheAvailable($name){
-            if($this->enableCache){
-                $cachefile = $this->cacheLocation . $name;
-                $cachetime = 5 * 60; //5 min
-                if (file_exists($cachefile) && (time() - $cachetime < filemtime($cachefile)))  {
-                    return true;
-                } else {
-                    return false;
-                }    
-            } else {
-                return false;
-            }
+
+        curl_close($ch);
+        return $result;
+    }
+
+    /**
+     * Get the middle HTML content between the specified start and end tags in the provided HTML data.
+     *
+     * @param string $html Full HTML content to parse
+     * @param string $startTag Start tag to search for in the HTML
+     * @param string $endTag End tag to search for in the HTML
+     * @return string Middle HTML content between the start and end tags, or an empty string if not found
+     */
+    public function getHtmlContentBetweenTags(string $html, string $startTag, string $endTag): string
+    {
+        $startPos = strpos($html, $startTag);
+        if ($startPos === false) {
+            return '';
         }
-        
-        /*
-        * 
-        * Reading cache file
-        * @ param string $name cache file name
-        * 
-        */
-        public function readCache($name){
-            $cachefile = $this->cacheLocation . $name;
-            $output = file_get_contents($cachefile, FILE_USE_INCLUDE_PATH);
-            return $output;
+
+        $startPos += strlen($startTag);
+        $endPos = strpos($html, $endTag, $startPos);
+
+        if ($endPos === false) {
+            return '';
         }
-        
-        
-        /*
-        * 
-        * Writing cache file with contents
-        * @ param string $name cache file name
-        * @ param string $content cache content to write on cache file
-        * 
-        */
-        public function writeCache($name, $content){
-            if($this->enableCache){
-                $cachefile = $this->cacheLocation . $name;
-                $fp = fopen($cachefile, 'w'); 
-                fwrite($fp, $content); 
-                fclose($fp);     
-            }        
-        }
+
+        return substr($html, $startPos, $endPos - $startPos);
+    }
+
+    /*
+    *
+    * Checking if cache file exist
+    * @ param string $name cache file name
+    *
+    */
+    private function checkIfCacheAvailable($name): bool
+    {
+        if(!$this->isCacheEnabled()) return false;
+
+        $cacheFile = $this->cacheLocation . $name;
+        $cacheTime = $this->cacheTTL;
+
+        return file_exists($cacheTime) && (time() - $cacheTime < filemtime($cacheFile));
+    }
+
+    /*
+    *
+    * Reading cache file
+     *
+    * @ param string $name cache file name
+    */
+    private function readCache($name){
+        if(!$this->isCacheEnabled()) return false;
+
+        $cacheFile = $this->cacheLocation . $name;
+        return file_get_contents($cacheFile, FILE_USE_INCLUDE_PATH);
+    }
+
+    /*
+    *
+    * Writing cache file with contents
+     *
+    * @param string $name cache file name
+    * @param string $content cache content to write on cache file
+    */
+    private function writeCache($name, $content){
+        if(!$this->isCacheEnabled()) return false;
+
+        $cacheFile = $this->cacheLocation . $name;
+        $fp = fopen($cacheFile, 'w');
+        fwrite($fp, $content);
+        fclose($fp);
+
+        return $this;
+    }
+
+    /**
+     *
+     * Check if Cache enabled and cache location set to a valid directory
+     *
+     * @return bool
+     */
+    private function isCacheEnabled(): bool
+    {
+        return ($this->enableCache && is_dir($this->cacheLocation));
+    }
 }           
     

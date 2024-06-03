@@ -1,0 +1,9 @@
+{
+  "require": {},
+  "require-dev": {},
+  "autoload": {
+    "psr-4": {
+      "PhpFarmer\\WebScraper\\": "../src/"
+    }
+  }
+}
