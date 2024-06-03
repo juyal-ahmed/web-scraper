@@ -1,20 +1,30 @@
 {
-    "name": "tojibon/web-scraper",
+    "name": "juyal-ahmed/web-scraper",
     "description": "A web scraper php class using PHP cURL to scrap web page. By which you can scrap web page by cURL get, post methods also by which you can scrap web page content from a asp.net based websites with form post.",
-    "version": "1.1",
-    "license": "GPL-3.0",
+    "version": "2.0",
+    "license": "MIT",
     "authors": [
         {
             "name": "Juyal Ahmed",
             "email": "tojibon@gmail.com",
-            "homepage": "http://www.codeatomic.com",
+            "homepage": "http://phpfarmer.com",
             "role": "Developer"
         }
     ],
     "require" : {
-        "php" : "^5.5 || ^7.0"
+        "php" : ">=7.4",
+        "ext-curl": "*",
+        "ext-dom": "*"
     },
     "autoload": {
-        "files": ["src/Scraper.php"]
+        "psr-4": {
+            "PhpFarmer\\WebScraper\\": "src/"
+        }
+    },
+    "scripts": {
+        "check-style": "phpcs -n src $(monorepo-builder source-packages --subfolder=src --subfolder=tests)"
+        },
+    "config": {
+        "platform-check": false
     }
 }
